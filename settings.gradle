@@ -1,0 +1,2 @@
+include 'groovy-git'
+include 'gradle-plugin-git'

@@ -1,0 +1,36 @@
+plugins {
+    id 'groovy'
+}
+
+task banner {
+    doFirst {
+        printf "Host: %s\nOS: %s %s %s\nJVM: %s %s %s %s\nGradle: %s Groovy: %s Java: %s\n" +
+                "Build: group: ${project.group} name: ${project.name} version: ${project.version}\n",
+                InetAddress.getLocalHost(),
+                System.getProperty("os.name"),
+                System.getProperty("os.arch"),
+                System.getProperty("os.version"),
+                System.getProperty("java.version"),
+                System.getProperty("java.vm.version"),
+                System.getProperty("java.vm.vendor"),
+                System.getProperty("java.vm.name"),
+                gradle.gradleVersion,
+                GroovySystem.getVersion(),
+                JavaVersion.current()
+        if (!JavaVersion.current().java11Compatible) {
+            println "WARNING: no Java 11 found. You will run into problems."
+        }
+    }
+}
+
+tasks.compileJava.dependsOn('banner')
+
+dependencies {
+    compileOnly gradleApi()
+    compile "org.eclipse.jgit:org.eclipse.jgit:${project.property('jgit.version')}"
+    testCompile gradleTestKit()
+    testCompile "org.codehaus.groovy:groovy-all:${project.property('groovy.version')}"
+    testCompile("org.spockframework:spock-core:${project.property('spock.version')}") {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    }
+}

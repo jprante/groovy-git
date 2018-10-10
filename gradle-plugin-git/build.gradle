@@ -1,0 +1,33 @@
+plugins {
+  id 'java-gradle-plugin'
+  id 'groovy'
+  id 'com.gradle.plugin-publish' version '0.9.10'
+}
+
+sourceSets {
+  compatTest {
+    compileClasspath += main.output
+    runtimeClasspath += main.output
+  }
+}
+
+dependencies {
+  compileOnly gradleApi()
+  implementation project(':groovy-git')
+  compatTestImplementation project(':groovy-git')
+  compatTestCompile 'junit:junit:latest.release'
+  compatTestCompile 'org.spockframework:spock-core:1.2-groovy-2.5'
+}
+
+pluginBundle {
+    website = 'https://github.com/jprante/groovy-git'
+    vcsUrl = 'https://github.com/jprante/groovy-git.git'
+    description = 'Git for Groovy'
+    plugins {
+        publishPlugin {
+            id = 'org.xbib.gradle.plugin.git'
+            displayName = 'Git for Groovy'
+            tags = ['git', 'groovy']
+        }
+    }
+}
