@@ -9,11 +9,11 @@ class SimpleGitOpSpec extends Specification {
     @Rule TemporaryFolder tempDir = new TemporaryFolder()
 
     Git grgit
-    Person person = new Person('Bruce Wayne', 'bruce.wayne@wayneindustries.com')
+    Person person = new Person('Jörg Prante', 'joergprante@gmail.com')
 
     def setup() {
         File repoDir = tempDir.newFolder('repo')
-        org.eclipse.jgit.api.Git git =  org.eclipse.jgit.api.Git.init().setDirectory(repoDir).call()
+        org.eclipse.jgit.api.Git git = org.eclipse.jgit.api.Git.init().setDirectory(repoDir).call()
 
         // Don't want the user's git config to conflict with test expectations
         git.repo.FS.userHome = null

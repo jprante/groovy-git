@@ -1,0 +1,69 @@
+= gradle
+
+## Applying the Plugin
+
+Generally, you should only apply the plugin to the root project of your build.
+
+```groovy
+plugins {
+  id 'org.xbib.gradle.plugin.git' version '<version>'
+}
+```
+
+## What does the plugin do?
+
+The `org.xbib.gradle.plugin.git` plugin adds a `git` property to your build,
+which is an instance of Groovy Git opened to the repository visible from your project's root dir.
+This will check the project directory and its parents for a `.git` directory.
+If no repository is found, the `git` property is `null`.
+
+```groovy
+version = "1.0.0-${git.head().abbreviatedId}"
+
+task tagRelease {
+  description = 'Tags the current head with the project\'s version.'
+  doLast {
+    git.tag.add {
+      name = version
+      message = "Release of ${version}"
+    }
+  }
+}
+
+task pushToOrigin {
+  description = 'Pushes current branch\'s committed changes to origin repo.'
+  doLast {
+    git.push()
+  }
+}
+```
+
+For details on the available operations, see the link:reference.html[reference]. Examples are provided there.
+
+## Just getting the library
+
+If you don't want to interact with the project's repository, but still want to
+
+```groovy
+plugins {
+  id 'org.xbib.gradle.plugin.git' version '<version>' apply false
+}
+```
+
+Then you can import Groovy Git and continue from there:
+
+```groovy
+import org.xbib.gradle.plugin.git.Git
+
+task cloneSomeRepo {
+  doLast {
+    def git = Git.clone(dir: "$buildDir/my-repo", uri: "https://github.com/jprante/groovy-git.git")
+    println git.describe()
+  }
+}
+```
+
+## Authentication
+
+If you will be doing a clone, fetch, push, or pull, review the link:authentication.html[authentication] page for details
+on how to configure credentials for these commands.

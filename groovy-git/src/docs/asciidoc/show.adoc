@@ -1,0 +1,40 @@
+= show
+
+== Name
+
+show - Show a commit
+
+== Synopsis
+
+[source, groovy]
+----
+git.show()
+----
+
+[source, groovy]
+----
+git.show(commit: <revstr>)
+----
+
+[source, groovy]
+----
+git.show {
+  commit = <revstr>
+}
+----
+
+== Description
+
+Shows a commit including it's message and diff.
+
+Returns a CommitDiff for the given commit.
+
+== Options
+
+commit:: (`Object`, default: `HEAD`) A revstring-ish object naming the commit to be shown. Commit-ish object names to include the history of in the output. For a more complete list of ways to specify a revstring, see resolve (specifically the `toRevisionString` method).
+
+== Examples
+
+== See Also
+
+- link:https://git-scm.com/docs/git-show[git-show]

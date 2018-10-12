@@ -48,33 +48,4 @@ class Commit {
      */
     String shortMessage
 
-    /**
-     * The time the commit was created in seconds since "the epoch".
-     * @return the time
-     * @deprecated use Commit#dateTime
-     */
-    @Deprecated
-    long getTime() {
-        return dateTime.toEpochSecond()
-    }
-
-    /**
-     * The time the commit was created.
-     * @return the date
-     * @deprecated use Commit#dateTime
-     */
-    @Deprecated
-    Date getDate() {
-        return Date.from(dateTime.toInstant())
-    }
-
-    /**
-     * The first {@code length} characters of the commit hash.
-     * @param length the number of characters to abbreviate the
-     * hash.
-     */
-    @Deprecated
-    String getAbbreviatedId(int length) {
-        return id[0..(length - 1)]
-    }
 }

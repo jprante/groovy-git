@@ -1,0 +1,14 @@
+This work is a fork of Andrew J. Oberstar's grgit project as of 6-Oct-2018
+
+https://github.com/ajoberstar/grgit
+
+Copyight (C) 2013 Andrew J. Oberstar
+
+License: Apache 2.0
+
+This implementation is a fork of the Andrew J. Oberstar's grgit project with a reset of the
+version numbering scheme.
+It was ensured to build and run under Java 11 and Gradle 5.
+Windows implementation and documentation has been removed.
+The package structure and documentation have been adjusted;
+all references to original authors and versions have been removed for clarity and consistency.

@@ -1,0 +1,66 @@
+= resolve
+
+== Name
+
+git-resolve - Resolves objects to various types
+
+== Synopsis
+
+[source, groovy]
+----
+git.resolve.toObjectId(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toCommit(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toBranch(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toBranchName(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toTag(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toTagName(<object>)
+----
+
+[source, groovy]
+----
+git.resolve.toRevisionString(<object>)
+----
+
+== Description
+
+Various methods to resolve objects to types needed by Groovy Git operations. These are used to normalize the input, allowing the caller more flexibility in providing the data they have rather than having to convert it ahead of time.
+
+== Options
+
+toObjectId:: Accepts Commit, Tag, Branch, Ref
+
+toCommit:: Accepts Commit, Tag, Branch, String, GString
+
+toBranch:: Accepts Branch, String, GString
+
+toBranchName:: Accepts Branch, String, GString
+
+toTag:: Accepts Tag, String, GString
+
+toTagName:: Accepts Tag, String, GString
+
+toRevisionString:: Accepts Commit, Tag, Branch, String, GString
+
+== Examples
+
+== See Also

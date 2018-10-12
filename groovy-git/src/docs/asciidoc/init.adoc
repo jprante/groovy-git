@@ -1,0 +1,37 @@
+= init
+
+== Name
+
+init - Create an empty Git repository
+
+== Synopsis
+
+[source, groovy]
+----
+git.init(dir: <path>, bare: <boolean>)
+----
+
+[source, groovy]
+----
+git.init {
+  dir = <path>
+  bare = <boolean>
+}
+----
+
+== Description
+
+This command creates an empty Git repository - basically a `.git` directory with subdirectories for `objects`, `refs/heads`, `refs/tags`, and template files. An initial `HEAD` file that references the HEAD of the master branch is also created.
+
+Returns a Groovy Git instance.
+
+== Options
+
+dir:: (`Object`, default `null`) The directory the repository should be initialized in. Can be a `File`, `Path`, or `String`.
+bare:: (`boolean`, default `false`) Create a bare repository.
+
+== Examples
+
+== See Also
+
+- link:https://git-scm.com/docs/git-init[git-init]

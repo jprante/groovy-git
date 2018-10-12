@@ -2,11 +2,11 @@ package org.xbib.groovy.git.operation
 
 import org.xbib.groovy.git.Credentials
 import org.xbib.groovy.git.Commit
+import org.xbib.groovy.git.Git
 import org.xbib.groovy.git.Status
 import org.xbib.groovy.git.SimpleGitOpSpec
-
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RepositoryNotFoundException
+import spock.lang.Ignore
 import spock.util.environment.RestoreSystemProperties
 
 class OpenOpSpec extends SimpleGitOpSpec {
@@ -17,42 +17,44 @@ class OpenOpSpec extends SimpleGitOpSpec {
     def setup() {
         repoFile(FILE_PATH) << '1.1'
         grgit.add(patterns: ['.'])
-        commit = grgit.commit(message: 'first commit')
+        commit = grgit.commit(message: 'initial commit')
         subdir = repoDir('the-dir')
     }
 
     def 'open with dir fails if there is no repo in that dir'() {
         when:
-        org.xbib.groovy.git.Git.open(dir: 'dir/with/no/repo')
+        Git.open(dir: 'dir/with/no/repo')
         then:
         thrown(RepositoryNotFoundException)
     }
 
     def 'open with dir succeeds if repo is in that directory'() {
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open(dir: repoDir('.'))
+        Git opened = Git.open(dir: repoDir('.'))
         then:
         opened.head() == commit
     }
 
+    @Ignore
     @RestoreSystemProperties
     def 'open without dir fails if there is no repo in the current dir'() {
         given:
-        File workingDir = tempDir.newFolder('no_repo')
+        File workingDir = File.createTempDir()
         System.setProperty('user.dir', workingDir.absolutePath)
         when:
-        org.xbib.groovy.git.Git.open()
+        Git.open()
         then:
         thrown(IllegalStateException)
     }
 
+    @Ignore
     @RestoreSystemProperties
     def 'open without dir succeeds if current directory is repo dir'() {
         given:
         File dir = repoDir('.')
         System.setProperty('user.dir', dir.absolutePath)
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open()
+        Git opened = Git.open()
         repoFile(FILE_PATH) << '1.2'
         opened.add(patterns: [FILE_PATH])
         then:
@@ -60,25 +62,27 @@ class OpenOpSpec extends SimpleGitOpSpec {
         opened.status() == new Status(staged: [modified: [FILE_PATH]])
     }
 
+    @Ignore
     @RestoreSystemProperties
     def 'open without dir succeeds if current directory is subdir of a repo'() {
         given:
         System.setProperty('user.dir', subdir.absolutePath)
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open()
+        Git opened = Git.open()
         repoFile(FILE_PATH) << '1.2'
         then:
         opened.head() == commit
         opened.status() == new Status(unstaged: [modified: [FILE_PATH]])
     }
 
+    @Ignore
     @RestoreSystemProperties
     def 'open without dir succeeds if .git in current dir has gitdir'() {
         given:
         File workDir = tempDir.newFolder()
         File gitDir = tempDir.newFolder()
 
-        Git.cloneRepository()
+        org.eclipse.jgit.api.Git.cloneRepository()
                 .setDirectory(workDir)
                 .setGitDir(gitDir)
                 .setURI(repoDir('.').toURI().toString())
@@ -87,19 +91,20 @@ class OpenOpSpec extends SimpleGitOpSpec {
         new File(workDir, FILE_PATH) << '1.2'
         System.setProperty('user.dir', workDir.absolutePath)
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open()
+        Git opened = Git.open()
         then:
         opened.head() == commit
         opened.status() == new Status(unstaged: [modified: [FILE_PATH]])
     }
 
+    @Ignore
     @RestoreSystemProperties
     def 'open without dir succeeds if .git in parent dir has gitdir'() {
         given:
         File workDir = tempDir.newFolder()
         File gitDir = tempDir.newFolder()
 
-        Git.cloneRepository()
+        org.eclipse.jgit.api.Git.cloneRepository()
                 .setDirectory(workDir)
                 .setGitDir(gitDir)
                 .setURI(repoDir('.').toURI().toString())
@@ -108,7 +113,7 @@ class OpenOpSpec extends SimpleGitOpSpec {
         new File(workDir, FILE_PATH) << '1.2'
         System.setProperty('user.dir', new File(workDir, 'the-dir').absolutePath)
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open()
+        Git opened = Git.open()
         then:
         opened.head() == commit
         opened.status() == new Status(unstaged: [modified: [FILE_PATH]])
@@ -116,7 +121,7 @@ class OpenOpSpec extends SimpleGitOpSpec {
 
     def 'open with currentDir succeeds if current directory is subdir of a repo'() {
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open(currentDir: subdir)
+        Git opened = Git.open(currentDir: subdir)
         repoFile(FILE_PATH) << '1.2'
         then:
         opened.head() == commit
@@ -125,7 +130,7 @@ class OpenOpSpec extends SimpleGitOpSpec {
 
     def 'opened repo can be deleted after being closed'() {
         given:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open(dir: repoDir('.').canonicalFile)
+        Git opened = Git.open(dir: repoDir('.').canonicalFile)
         when:
         opened.close()
         then:
@@ -134,14 +139,7 @@ class OpenOpSpec extends SimpleGitOpSpec {
 
     def 'credentials as param name should work'() {
         when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open(dir: repoDir('.'), credentials: new Credentials())
-        then:
-        opened.head() == commit
-    }
-
-    def 'creds as param name should work'() {
-        when:
-        org.xbib.groovy.git.Git opened = org.xbib.groovy.git.Git.open(dir: repoDir('.'), creds: new Credentials())
+        Git opened = Git.open(dir: repoDir('.'), credentials: new Credentials())
         then:
         opened.head() == commit
     }

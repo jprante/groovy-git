@@ -1,5 +1,15 @@
 plugins {
     id 'groovy'
+    id 'maven'
+    id 'signing'
+    id "org.xbib.gradle.plugin.asciidoctor" version "1.6.0.1"
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+configurations {
+    wagon
 }
 
 task banner {
@@ -33,4 +43,130 @@ dependencies {
     testCompile("org.spockframework:spock-core:${project.property('spock.version')}") {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
+    wagon "org.apache.maven.wagon:wagon-ssh:${project.property('wagon.version')}"
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier 'sources'
+}
+
+groovydoc {
+    docTitle = description
+}
+
+task groovydocJar(type: Jar, dependsOn: 'groovydoc') {
+    from groovydoc.destinationDir
+    classifier = 'javadoc' // for sonatype validation
+}
+
+artifacts {
+    archives sourceJar, groovydocJar
+}
+
+if (project.hasProperty('signing.keyId')) {
+    signing {
+        sign configurations.archives
+    }
+}
+
+asciidoctor {
+    sourceDir = file("src/docs/asciidoc")
+    sources {
+        include 'index.adoc'
+    }
+    backends = ['html5']
+    attributes 'toc': 'left',
+            'source-highlighter': 'coderay',
+            'icons': 'font',
+            'numbered': '',
+            'idprefix': '',
+            'docinfo1': 'true'
+    resources {
+        from project.tasks.groovydoc {
+            into 'api'
+        }
+    }
+    inputs.files project.sourceSets.test.allSource
+}
+
+ext {
+    user = 'jprante'
+    projectName = 'groovy-git'
+    projectDescription = 'Git for Groovy'
+    scmUrl = 'https://github.com/' + user + '/' + name
+    scmConnection = 'scm:git:git://github.com/' + user + '/' + name + '.git'
+    scmDeveloperConnection = 'scm:git:git://github.com/' + user + '/' + name + '.git'
+}
+
+task xbibUpload(type: Upload, dependsOn: build) {
+    group = 'publish'
+    configuration = configurations.archives
+    uploadDescriptor = true
+    repositories {
+        if (project.hasProperty('xbibUsername')) {
+            mavenDeployer {
+                configuration = configurations.wagon
+                repository(url: uri(project.property('xbibUrl'))) {
+                    authentication(userName: xbibUsername, privateKey: xbibPrivateKey)
+                }
+            }
+        }
+    }
+}
+
+task sonatypeUpload(type: Upload, dependsOn: build) {
+    group = 'publish'
+    configuration = configurations.archives
+    uploadDescriptor = true
+    repositories {
+        if (project.hasProperty('ossrhUsername')) {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                repository(url: uri(ossrhReleaseUrl)) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+                snapshotRepository(url: uri(ossrhSnapshotUrl)) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+                pom.project {
+                    groupId project.group
+                    artifactId project.name
+                    version project.version
+                    name project.name
+                    description projectDescription
+                    packaging 'jar'
+                    inceptionYear '2018'
+                    url scmUrl
+                    organization {
+                        name 'xbib'
+                        url 'http://xbib.org'
+                    }
+                    developers {
+                        developer {
+                            id user
+                            name 'Jörg Prante'
+                            email 'joergprante@gmail.com'
+                            url 'https://github.com/jprante'
+                        }
+                    }
+                    scm {
+                        url scmUrl
+                        connection scmConnection
+                        developerConnection scmDeveloperConnection
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+nexusStaging {
+    packageGroup = "org.xbib"
 }

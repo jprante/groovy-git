@@ -1,0 +1,20 @@
+# Groovy Git
+
+NOTE: This implementation is a fork of the Andrew J. Oberstar's https://github.com/ajoberstart/grgit[grgit] project with a reset of the
+version numbering scheme.
+It was ensured to build and run under Java 11 and Gradle 5.
+Windows implementation details and documentation has been removed.
+The package structure and documentation have been adjusted;
+all references to original authors and versions have been removed for clarity and consistency.
+
+https://eclipse.org/jgit/[JGit] provides a powerful Java API for interacting with Git repositories. However,
+in a Groovy context, it feels very cumbersome, making it harder to express the operations you want to perform
+without being surrounded by a lot of cruft.
+
+Groovy Git is a wrapper over JGit that provides a fluent API for interacting with Git repositories in Groovy-based
+tooling. Features that require more user interaction (such as resolving merge conflicts) are intentionally excluded.
+
+It also provides a Gradle plugin to easily get a Groovy Git instance.
+
+Groovy Git is available from Maven or the Gradle Plugin Portal.
+

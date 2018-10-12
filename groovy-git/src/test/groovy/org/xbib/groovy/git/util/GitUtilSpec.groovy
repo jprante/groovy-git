@@ -104,7 +104,7 @@ class GitUtilSpec extends Specification {
         expect:
         def result = GitUtil.convertCommit(repo, commits[1])
         result == expectedCommit
-        result.date.toInstant() == commitTime.toInstant()
+        result.dateTime.toInstant() == commitTime.toInstant()
     }
 
     def 'resolveTag works for annotated tag ref'() {

@@ -1,0 +1,22 @@
+= head
+
+== Name
+
+head - Gets the current `HEAD` commit.
+
+== Synopsis
+
+[source, groovy]
+----
+git.head()
+----
+
+== Description
+
+Returns the commit that the current `HEAD` points to.
+
+== Options
+
+== Examples
+
+== See Also

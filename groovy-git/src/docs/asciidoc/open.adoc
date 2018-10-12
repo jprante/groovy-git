@@ -1,0 +1,42 @@
+= open
+
+== Name
+
+open - Open an existing Git repository
+
+== Synopsis
+
+[source, groovy]
+----
+git.open()
+----
+
+[source, groovy]
+----
+git.open(dir: <path>, currentDir: <path>, credentials: <credentials>)
+----
+
+[source, groovy]
+----
+git.open {
+  dir = <path>
+  currentDir = <path>
+  credentials = <credentals>
+}
+----
+
+== Description
+
+This command opens an existing Git repository. If both `dir` and `currentDir` are `null`, acts as if the `currentDir` is the JVM's working directory.
+
+Returns a Groovy Git instance.
+
+== Options
+
+dir:: (`Object`, default `null`) The directory the repository is in. Can be a `File`, `Path`, or `String`.
+currentDir:: (`Object`, default `null`) The directory to start searching for the repository from. Can be a `File`, `Path`, or `String`.
+credentials:: (`Credentials`, default `null`) An instance of Credentials containing username/password to be used in operations that require authentication.
+See link:authentication.html[authentication] for preferred ways to configure this.
+
+== Examples
+
