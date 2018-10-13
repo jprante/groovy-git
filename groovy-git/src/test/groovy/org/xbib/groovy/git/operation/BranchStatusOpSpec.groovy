@@ -7,45 +7,47 @@ import org.xbib.groovy.git.MultiGitOpSpec
 import spock.lang.Unroll
 
 class BranchStatusOpSpec extends MultiGitOpSpec {
-    Git localGrgit
-    Git remoteGrgit
+
+    Git localGit
+
+    Git remoteGit
 
     def setup() {
-        remoteGrgit = init('remote')
+        remoteGit = init('remote')
 
-        repoFile(remoteGrgit, '1.txt') << '1'
-        remoteGrgit.commit(message: 'do', all: true)
+        repoFile(remoteGit, '1.txt') << '1'
+        remoteGit.commit(message: 'do', all: true)
 
-        remoteGrgit.checkout(branch: 'up-to-date', createBranch: true)
+        remoteGit.checkout(branch: 'up-to-date', createBranch: true)
 
-        repoFile(remoteGrgit, '1.txt') << '2'
-        remoteGrgit.commit(message: 'do', all: true)
+        repoFile(remoteGit, '1.txt') << '2'
+        remoteGit.commit(message: 'do', all: true)
 
-        remoteGrgit.checkout(branch: 'master')
-        remoteGrgit.checkout(branch: 'out-of-date', createBranch: true)
+        remoteGit.checkout(branch: 'master')
+        remoteGit.checkout(branch: 'out-of-date', createBranch: true)
 
-        localGrgit = clone('local', remoteGrgit)
+        localGit = clone('local', remoteGit)
 
-        localGrgit.branch.add(name: 'up-to-date', startPoint: 'origin/up-to-date')
-        localGrgit.branch.add(name: 'out-of-date', startPoint: 'origin/out-of-date')
-        localGrgit.checkout(branch: 'out-of-date')
+        localGit.branch.add(name: 'up-to-date', startPoint: 'origin/up-to-date')
+        localGit.branch.add(name: 'out-of-date', startPoint: 'origin/out-of-date')
+        localGit.checkout(branch: 'out-of-date')
 
-        repoFile(remoteGrgit, '1.txt') << '3'
-        remoteGrgit.commit(message: 'do', all: true)
+        repoFile(remoteGit, '1.txt') << '3'
+        remoteGit.commit(message: 'do', all: true)
 
-        repoFile(localGrgit, '1.txt') << '4'
-        localGrgit.commit(message: 'do', all: true)
-        repoFile(localGrgit, '1.txt') << '5'
-        localGrgit.commit(message: 'do', all: true)
+        repoFile(localGit, '1.txt') << '4'
+        localGit.commit(message: 'do', all: true)
+        repoFile(localGit, '1.txt') << '5'
+        localGit.commit(message: 'do', all: true)
 
-        localGrgit.branch.add(name: 'no-track')
+        localGit.branch.add(name: 'no-track')
 
-        localGrgit.fetch()
+        localGit.fetch()
     }
 
     def 'branch status on branch that is not tracking fails'() {
         when:
-        localGrgit.branch.status(name: 'no-track')
+        localGit.branch.status(name: 'no-track')
         then:
         thrown(IllegalStateException)
     }
@@ -53,7 +55,7 @@ class BranchStatusOpSpec extends MultiGitOpSpec {
     @Unroll('branch status on #branch gives correct counts')
     def 'branch status on branch that is tracking gives correct counts'() {
         expect:
-        localGrgit.branch.status(name: branch) == status
+        localGit.branch.status(name: branch) == status
         where:
         branch		| status
         'up-to-date'  | new BranchStatus(branch: GitTestUtil.branch('refs/heads/up-to-date', 'refs/remotes/origin/up-to-date'), aheadCount: 0, behindCount: 0)

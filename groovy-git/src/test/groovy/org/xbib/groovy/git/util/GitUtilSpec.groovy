@@ -5,9 +5,9 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 import org.xbib.groovy.git.Commit
+import org.xbib.groovy.git.Git
 import org.xbib.groovy.git.Person
 import org.xbib.groovy.git.Repository
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RevisionSyntaxException
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
@@ -20,12 +20,17 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class GitUtilSpec extends Specification {
+
     @Rule TemporaryFolder tempDir = new TemporaryFolder()
 
     Repository repo
+
     List commits = []
+
     Ref annotatedTag
+
     Ref unannotatedTag
+
     Ref taggedAnnotatedTag
 
     def 'resolveObject works for branch name'() {
@@ -162,29 +167,29 @@ class GitUtilSpec extends Specification {
 
     def setup() {
         File repoDir = tempDir.newFolder('repo')
-        Git git = Git.init().setDirectory(repoDir).call()
-        git.repo.config.with {
+        org.eclipse.jgit.api.Git jgit = org.eclipse.jgit.api.Git.init().setDirectory(repoDir).call()
+        jgit.repo.config.with {
             setString('user', null, 'name', 'Bruce Wayne')
             setString('user', null, 'email', 'bruce.wayne@wayneindustries.com')
             save()
         }
         File testFile = new File(repoDir, '1.txt')
         testFile << '1\n'
-        git.add().addFilepattern(testFile.name).call()
-        commits << git.commit().setMessage('first commit\ntesting').call()
-        annotatedTag = git.tag().setName('v1.0.0').setMessage('first tag\ntesting').call()
-        unannotatedTag = git.tag().setName('v2.0.0').setAnnotated(false).call()
+        jgit.add().addFilepattern(testFile.name).call()
+        commits << jgit.commit().setMessage('first commit\ntesting').call()
+        annotatedTag = jgit.tag().setName('v1.0.0').setMessage('first tag\ntesting').call()
+        unannotatedTag = jgit.tag().setName('v2.0.0').setAnnotated(false).call()
         testFile << '2\n'
-        git.add().addFilepattern(testFile.name).call()
-        commits << git.commit().setMessage('second commit').call()
-        git.checkout().setName(ObjectId.toString(commits[0])).call()
+        jgit.add().addFilepattern(testFile.name).call()
+        commits << jgit.commit().setMessage('second commit').call()
+        jgit.checkout().setName(ObjectId.toString(commits[0])).call()
         testFile << '3\n'
-        git.add().addFilepattern(testFile.name).call()
-        commits << git.commit().setMessage('third commit').call()
-        git.checkout().setName('master').call()
-        commits << git.merge().include(commits[2]).setStrategy(MergeStrategy.OURS).call().newHead
-        RevTag tagV1 = new RevWalk(git.repository).parseTag(annotatedTag.objectId)
-        taggedAnnotatedTag = git.tag().setName('v1.1.0').setObjectId(tagV1).setMessage('testing').call()
-        repo = org.xbib.groovy.git.Git.open(dir: repoDir).repository
+        jgit.add().addFilepattern(testFile.name).call()
+        commits << jgit.commit().setMessage('third commit').call()
+        jgit.checkout().setName('master').call()
+        commits << jgit.merge().include(commits[2]).setStrategy(MergeStrategy.OURS).call().newHead
+        RevTag tagV1 = new RevWalk(jgit.repository).parseTag(annotatedTag.objectId)
+        taggedAnnotatedTag = jgit.tag().setName('v1.1.0').setObjectId(tagV1).setMessage('testing').call()
+        repo = Git.open(dir: repoDir).repository
     }
 }

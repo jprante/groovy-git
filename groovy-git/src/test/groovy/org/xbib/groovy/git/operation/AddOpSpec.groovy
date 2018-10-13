@@ -4,15 +4,16 @@ import org.xbib.groovy.git.Status
 import org.xbib.groovy.git.SimpleGitOpSpec
 
 class AddOpSpec extends SimpleGitOpSpec {
+
     def 'adding specific file only adds that file'() {
         given:
         repoFile('1.txt') << '1'
         repoFile('2.txt') << '2'
         repoFile('test/3.txt') << '3'
         when:
-        grgit.add(patterns:['1.txt'])
+        git.add(patterns:['1.txt'])
         then:
-        grgit.status() == new Status(
+        git.status() == new Status(
                 staged: [added: ['1.txt']],
                 unstaged: [added: ['2.txt', 'test/3.txt']]
         )
@@ -26,9 +27,9 @@ class AddOpSpec extends SimpleGitOpSpec {
         repoFile('test/4.txt') << '4'
         repoFile('test/other/5.txt') << '5'
         when:
-        grgit.add(patterns:['test'])
+        git.add(patterns:['test'])
         then:
-        grgit.status() == new Status(
+        git.status() == new Status(
                 staged: [added: ['test/3.txt', 'test/4.txt', 'test/other/5.txt']],
                 unstaged: [added: ['1.txt', 'something/2.txt']]
         )
@@ -42,9 +43,9 @@ class AddOpSpec extends SimpleGitOpSpec {
         repoFile('test/4.txt') << '4'
         repoFile('test/other/5.txt') << '5'
         when:
-        grgit.add(patterns:['**/*.txt'])
+        git.add(patterns:['**/*.txt'])
         then:
-        grgit.status() == new Status(
+        git.status() == new Status(
                 unstaged: [added: ['1.bat', 'test/3.bat', 'something/2.txt', 'test/4.txt', 'test/other/5.txt']]
         )
         /*
@@ -59,17 +60,17 @@ class AddOpSpec extends SimpleGitOpSpec {
         repoFile('1.bat') << '1'
         repoFile('something/2.txt') << '2'
         repoFile('test/3.bat') << '3'
-        grgit.add(patterns:['.'])
-        grgit.repository.jgit.commit().setMessage('Test').call()
+        git.add(patterns:['.'])
+        git.repository.jgit.commit().setMessage('Test').call()
         repoFile('1.bat') << '1'
         repoFile('something/2.txt') << '2'
         assert repoFile('test/3.bat').delete()
         repoFile('test/4.txt') << '4'
         repoFile('test/other/5.txt') << '5'
         when:
-        grgit.add(patterns:['.'], update:true)
+        git.add(patterns:['.'], update:true)
         then:
-        grgit.status() == new Status(
+        git.status() == new Status(
                 staged: [modified: ['1.bat', 'something/2.txt'], removed: ['test/3.bat']],
                 unstaged: [added: ['test/4.txt', 'test/other/5.txt']]
         )

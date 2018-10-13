@@ -3,37 +3,38 @@ package org.xbib.groovy.git.operation
 import org.xbib.groovy.git.SimpleGitOpSpec
 
 class TagRemoveOpSpec extends SimpleGitOpSpec {
+
     def setup() {
         repoFile('1.txt') << '1'
-        grgit.commit(message: 'do', all: true)
-        grgit.tag.add(name: 'tag1')
+        git.commit(message: 'do', all: true)
+        git.tag.add(name: 'tag1')
 
         repoFile('1.txt') << '2'
-        grgit.commit(message: 'do', all: true)
-        grgit.tag.add(name: 'tag2', annotate: false)
+        git.commit(message: 'do', all: true)
+        git.tag.add(name: 'tag2', annotate: false)
     }
 
     def 'tag remove with empty list does nothing'() {
         expect:
-        grgit.tag.remove() == []
-        grgit.tag.list().collect { it.fullName } == ['refs/tags/tag1', 'refs/tags/tag2']
+        git.tag.remove() == []
+        git.tag.list().collect { it.fullName } == ['refs/tags/tag1', 'refs/tags/tag2']
     }
 
     def 'tag remove with one tag removes tag'() {
         expect:
-        grgit.tag.remove(names: ['tag2']) == ['refs/tags/tag2']
-        grgit.tag.list().collect { it.fullName } == ['refs/tags/tag1']
+        git.tag.remove(names: ['tag2']) == ['refs/tags/tag2']
+        git.tag.list().collect { it.fullName } == ['refs/tags/tag1']
     }
 
     def 'tag remove with multiple tags removes tags'() {
         expect:
-        grgit.tag.remove(names: ['tag2', 'tag1']) as Set == ['refs/tags/tag2', 'refs/tags/tag1'] as Set
-        grgit.tag.list() == []
+        git.tag.remove(names: ['tag2', 'tag1']) as Set == ['refs/tags/tag2', 'refs/tags/tag1'] as Set
+        git.tag.list() == []
     }
 
     def 'tag remove with invalid tags skips invalid and removes others'() {
         expect:
-        grgit.tag.remove(names: ['tag2', 'blah4']) == ['refs/tags/tag2']
-        grgit.tag.list().collect { it.fullName } == ['refs/tags/tag1']
+        git.tag.remove(names: ['tag2', 'blah4']) == ['refs/tags/tag2']
+        git.tag.list().collect { it.fullName } == ['refs/tags/tag1']
     }
 }

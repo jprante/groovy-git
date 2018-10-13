@@ -7,117 +7,117 @@ import org.xbib.groovy.git.MultiGitOpSpec
 import org.eclipse.jgit.api.errors.GitAPIException
 
 class PushOpSpec extends MultiGitOpSpec {
-  Git localGrgit
-  Git remoteGrgit
 
-  def setup() {
-    // TODO: Conver to Grgit after branch and tag
+    Git localGit
 
-    remoteGrgit = init('remote')
+    Git remoteGit
 
-    repoFile(remoteGrgit, '1.txt') << '1'
-    remoteGrgit.commit(message: 'do', all: true)
+    def setup() {
+        remoteGit = init('remote')
 
-    remoteGrgit.branch.add(name: 'my-branch')
+        repoFile(remoteGit, '1.txt') << '1'
+        remoteGit.commit(message: 'do', all: true)
 
-    remoteGrgit.checkout(branch: 'some-branch', createBranch: true)
-    repoFile(remoteGrgit, '1.txt') << '1.5.1'
-    remoteGrgit.commit(message: 'do', all: true)
-    remoteGrgit.checkout(branch: 'master')
+        remoteGit.branch.add(name: 'my-branch')
 
-    localGrgit = clone('local', remoteGrgit)
-    localGrgit.checkout(branch: 'my-branch', createBranch: true)
+        remoteGit.checkout(branch: 'some-branch', createBranch: true)
+        repoFile(remoteGit, '1.txt') << '1.5.1'
+        remoteGit.commit(message: 'do', all: true)
+        remoteGit.checkout(branch: 'master')
 
-    repoFile(localGrgit, '1.txt') << '1.5'
-    localGrgit.commit(message: 'do', all: true)
+        localGit = clone('local', remoteGit)
+        localGit.checkout(branch: 'my-branch', createBranch: true)
 
-    localGrgit.tag.add(name: 'tag1')
+        repoFile(localGit, '1.txt') << '1.5'
+        localGit.commit(message: 'do', all: true)
 
-    localGrgit.checkout(branch: 'master')
+        localGit.tag.add(name: 'tag1')
 
-    repoFile(localGrgit, '1.txt') << '2'
-    localGrgit.commit(message: 'do', all: true)
+        localGit.checkout(branch: 'master')
 
-    localGrgit.tag.add(name: 'tag2')
-  }
+        repoFile(localGit, '1.txt') << '2'
+        localGit.commit(message: 'do', all: true)
 
-  def 'push to non-existent remote fails'() {
-    when:
-    localGrgit.push(remote: 'fake')
-    then:
-    thrown(GitAPIException)
-  }
+        localGit.tag.add(name: 'tag2')
+    }
 
-  def 'push without other settings pushes correct commits'() {
-    when:
-    localGrgit.push()
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') == GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/my-branch')
-    !GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push to non-existent remote fails'() {
+        when:
+        localGit.push(remote: 'fake')
+        then:
+        thrown(GitAPIException)
+    }
 
-  def 'push with all true pushes all branches'() {
-    when:
-    localGrgit.push(all: true)
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') == GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGrgit, 'refs/heads/my-branch')
-    !GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push without other settings pushes correct commits'() {
+        when:
+        localGit.push()
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') == GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGit, 'refs/heads/my-branch')
+        !GitTestUtil.tags(remoteGit)
+    }
 
-  def 'push with tags true pushes all tags'() {
-    when:
-    localGrgit.push(tags: true)
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/my-branch')
-    GitTestUtil.tags(localGrgit) == GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push with all true pushes all branches'() {
+        when:
+        localGit.push(all: true)
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') == GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGit, 'refs/heads/my-branch')
+        !GitTestUtil.tags(remoteGit)
+    }
 
-  def 'push with refs only pushes those refs'() {
-    when:
-    localGrgit.push(refsOrSpecs: ['my-branch'])
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGrgit, 'refs/heads/my-branch')
-    !GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push with tags true pushes all tags'() {
+        when:
+        localGit.push(tags: true)
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') != GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGit, 'refs/heads/my-branch')
+        GitTestUtil.tags(localGit) == GitTestUtil.tags(remoteGit)
+    }
 
-  def 'push with refSpecs only pushes those refs'() {
-    when:
-    localGrgit.push(refsOrSpecs: ['+refs/heads/my-branch:refs/heads/other-branch'])
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/my-branch')
-    GitTestUtil.resolve(localGrgit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGrgit, 'refs/heads/other-branch')
-    !GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push with refs only pushes those refs'() {
+        when:
+        localGit.push(refsOrSpecs: ['my-branch'])
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') != GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGit, 'refs/heads/my-branch')
+        !GitTestUtil.tags(remoteGit)
+    }
 
-  def 'push with non-fastforward fails'() {
-    when:
-    localGrgit.push(refsOrSpecs: ['refs/heads/master:refs/heads/some-branch'])
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/some-branch')
-    thrown(PushException)
-  }
+    def 'push with refSpecs only pushes those refs'() {
+        when:
+        localGit.push(refsOrSpecs: ['+refs/heads/my-branch:refs/heads/other-branch'])
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') != GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') != GitTestUtil.resolve(remoteGit, 'refs/heads/my-branch')
+        GitTestUtil.resolve(localGit, 'refs/heads/my-branch') == GitTestUtil.resolve(remoteGit, 'refs/heads/other-branch')
+        !GitTestUtil.tags(remoteGit)
+    }
 
-  def 'push in dryRun mode does not push commits'() {
-    given:
-    def remoteMasterHead = GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    when:
-    localGrgit.push(dryRun: true)
-    then:
-    GitTestUtil.resolve(localGrgit, 'refs/heads/master') != GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    GitTestUtil.resolve(remoteGrgit, 'refs/heads/master') == remoteMasterHead
-  }
+    def 'push with non-fastforward fails'() {
+        when:
+        localGit.push(refsOrSpecs: ['refs/heads/master:refs/heads/some-branch'])
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') != GitTestUtil.resolve(remoteGit, 'refs/heads/some-branch')
+        thrown(PushException)
+    }
 
-  def 'push in dryRun mode does not push tags'() {
-    given:
-    def remoteMasterHead = GitTestUtil.resolve(remoteGrgit, 'refs/heads/master')
-    when:
-    localGrgit.push(dryRun: true, tags: true)
-    then:
-    !GitTestUtil.tags(remoteGrgit)
-  }
+    def 'push in dryRun mode does not push commits'() {
+        given:
+        def remoteMasterHead = GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        when:
+        localGit.push(dryRun: true)
+        then:
+        GitTestUtil.resolve(localGit, 'refs/heads/master') != GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        GitTestUtil.resolve(remoteGit, 'refs/heads/master') == remoteMasterHead
+    }
+
+    def 'push in dryRun mode does not push tags'() {
+        given:
+        def remoteMasterHead = GitTestUtil.resolve(remoteGit, 'refs/heads/master')
+        when:
+        localGit.push(dryRun: true, tags: true)
+        then:
+        !GitTestUtil.tags(remoteGit)
+    }
 }

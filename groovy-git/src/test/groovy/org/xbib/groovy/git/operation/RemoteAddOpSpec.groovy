@@ -12,7 +12,7 @@ class RemoteAddOpSpec extends SimpleGitOpSpec {
                 url: 'http://fetch.url/',
                 fetchRefSpecs: ['+refs/heads/*:refs/remotes/newRemote/*'])
         expect:
-        remote == grgit.remote.add(name: 'newRemote', url: 'http://fetch.url/')
-        [remote] == grgit.remote.list()
+        remote == git.remote.add(name: 'newRemote', url: 'http://fetch.url/')
+        [remote] == git.remote.list()
     }
 }

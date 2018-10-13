@@ -9,11 +9,11 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs in commit that added new file'() {
         File fooFile = repoFile("dir1/foo.txt")
         fooFile << "foo!"
-        grgit.add(patterns: ['.'])
-        Commit commit = grgit.commit(message: "Initial commit")
+        git.add(patterns: ['.'])
+        Commit commit = git.commit(message: "Initial commit")
 
         expect:
-        grgit.show(commit: commit) == new CommitDiff(
+        git.show(commit: commit) == new CommitDiff(
                 commit: commit,
                 added: ['dir1/foo.txt']
         )
@@ -22,16 +22,16 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs in commit that modified existing file'() {
         File fooFile = repoFile("bar.txt")
         fooFile << "bar!"
-        grgit.add(patterns: ['.'])
-        grgit.commit(message: "Initial commit")
+        git.add(patterns: ['.'])
+        git.commit(message: "Initial commit")
 
         // Change existing file
         fooFile << "monkey!"
-        grgit.add(patterns: ['.'])
-        Commit changeCommit = grgit.commit(message: "Added monkey")
+        git.add(patterns: ['.'])
+        Commit changeCommit = git.commit(message: "Added monkey")
 
         expect:
-        grgit.show(commit: changeCommit) == new CommitDiff(
+        git.show(commit: changeCommit) == new CommitDiff(
                 commit: changeCommit,
                 modified: ['bar.txt']
         )
@@ -40,15 +40,15 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs in commit that deleted existing file'() {
         File fooFile = repoFile("bar.txt")
         fooFile << "bar!"
-        grgit.add(patterns: ['.'])
-        grgit.commit(message: "Initial commit")
+        git.add(patterns: ['.'])
+        git.commit(message: "Initial commit")
 
         // Delete existing file
-        grgit.remove(patterns: ['bar.txt'])
-        Commit removeCommit = grgit.commit(message: "Deleted file")
+        git.remove(patterns: ['bar.txt'])
+        Commit removeCommit = git.commit(message: "Deleted file")
 
         expect:
-        grgit.show(commit: removeCommit) == new CommitDiff(
+        git.show(commit: removeCommit) == new CommitDiff(
                 commit: removeCommit,
                 removed: ['bar.txt']
         )
@@ -57,8 +57,8 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs in commit with multiple changes'() {
         File animalFile = repoFile("animals.txt")
         animalFile << "giraffe!"
-        grgit.add(patterns: ['.'])
-        grgit.commit(message: "Initial commit")
+        git.add(patterns: ['.'])
+        git.commit(message: "Initial commit")
 
         // Change existing file
         animalFile << "zebra!"
@@ -66,11 +66,11 @@ class ShowOpSpec extends SimpleGitOpSpec {
         // Add new file
         File fishFile = repoFile("salmon.txt")
         fishFile<< "salmon!"
-        grgit.add(patterns: ['.'])
-        Commit changeCommit = grgit.commit(message: "Add fish and update animals with zebra")
+        git.add(patterns: ['.'])
+        Commit changeCommit = git.commit(message: "Add fish and update animals with zebra")
 
         expect:
-        grgit.show(commit: changeCommit) == new CommitDiff(
+        git.show(commit: changeCommit) == new CommitDiff(
                 commit: changeCommit,
                 modified: ['animals.txt'],
                 added: ['salmon.txt']
@@ -80,16 +80,16 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs in commit with rename'() {
         given:
         repoFile('elephant.txt') << 'I have tusks.'
-        grgit.add(patterns: ['.'])
-        grgit.commit(message: 'Adding elephant.')
+        git.add(patterns: ['.'])
+        git.commit(message: 'Adding elephant.')
 
         repoFile('elephant.txt').renameTo(repoFile('mammoth.txt'))
-        grgit.add(patterns: ['.'])
-        grgit.remove(patterns: ['elephant.txt'])
-        Commit renameCommit = grgit.commit(message: 'Renaming to mammoth.')
+        git.add(patterns: ['.'])
+        git.remove(patterns: ['elephant.txt'])
+        Commit renameCommit = git.commit(message: 'Renaming to mammoth.')
 
         expect:
-        grgit.show(commit: renameCommit) == new CommitDiff(
+        git.show(commit: renameCommit) == new CommitDiff(
                 commit: renameCommit,
                 renamed: ['mammoth.txt']
         )
@@ -98,11 +98,11 @@ class ShowOpSpec extends SimpleGitOpSpec {
     def 'can show diffs based on rev string'() {
         File fooFile = repoFile("foo.txt")
         fooFile << "foo!"
-        grgit.add(patterns: ['.'])
-        Commit commit = grgit.commit(message: "Initial commit")
+        git.add(patterns: ['.'])
+        Commit commit = git.commit(message: "Initial commit")
 
         expect:
-        grgit.show(commit: commit.id) == new CommitDiff(
+        git.show(commit: commit.id) == new CommitDiff(
                 commit: commit,
                 added: ['foo.txt']
         )

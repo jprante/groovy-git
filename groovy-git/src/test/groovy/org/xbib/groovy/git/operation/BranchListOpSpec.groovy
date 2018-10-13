@@ -6,31 +6,33 @@ import org.xbib.groovy.git.MultiGitOpSpec
 import spock.lang.Unroll
 
 class BranchListOpSpec extends MultiGitOpSpec {
-    Git localGrgit
-    Git remoteGrgit
+
+    Git localGit
+
+    Git remoteGit
 
     def setup() {
-        remoteGrgit = init('remote')
+        remoteGit = init('remote')
 
-        repoFile(remoteGrgit, '1.txt') << '1'
-        remoteGrgit.commit(message: 'do', all: true)
+        repoFile(remoteGit, '1.txt') << '1'
+        remoteGit.commit(message: 'do', all: true)
 
-        remoteGrgit.branch.add(name: 'my-branch')
+        remoteGit.branch.add(name: 'my-branch')
 
-        repoFile(remoteGrgit, '2.txt') << '2'
-        remoteGrgit.commit(message: 'another', all: true)
-        remoteGrgit.tag.add(name: 'test-tag');
+        repoFile(remoteGit, '2.txt') << '2'
+        remoteGit.commit(message: 'another', all: true)
+        remoteGit.tag.add(name: 'test-tag');
 
-        localGrgit = clone('local', remoteGrgit)
+        localGit = clone('local', remoteGit)
     }
 
     @Unroll('list branch with #arguments lists #expected')
     def 'list branch without arguments only lists local'() {
         given:
         def expectedBranches = expected.collect { GitTestUtil.branch(*it) }
-        def head = localGrgit.head()
+        def head = localGit.head()
         expect:
-        localGrgit.branch.list(arguments) == expectedBranches
+        localGit.branch.list(arguments) == expectedBranches
         where:
         arguments											  | expected
         [:]													| [['refs/heads/master', 'refs/remotes/origin/master']]
@@ -43,9 +45,9 @@ class BranchListOpSpec extends MultiGitOpSpec {
     def 'list branch receives Commit object as contains flag'() {
         given:
         def expectedBranches = [GitTestUtil.branch('refs/remotes/origin/master')]
-        def head = localGrgit.head()
+        def head = localGit.head()
         def arguments = [mode: BranchListOp.Mode.REMOTE, contains: head]
         expect:
-        localGrgit.branch.list(arguments) == expectedBranches
+        localGit.branch.list(arguments) == expectedBranches
     }
 }

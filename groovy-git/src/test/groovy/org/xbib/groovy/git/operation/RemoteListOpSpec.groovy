@@ -5,20 +5,21 @@ import org.xbib.groovy.git.Remote
 import org.xbib.groovy.git.MultiGitOpSpec
 
 class RemoteListOpSpec extends MultiGitOpSpec {
+
     def 'will list all remotes'() {
         given:
-        Git remoteGrgit = init('remote')
+        Git remoteGit = init('remote')
 
-        repoFile(remoteGrgit, '1.txt') << '1'
-        remoteGrgit.commit(message: 'do', all: true)
+        repoFile(remoteGit, '1.txt') << '1'
+        remoteGit.commit(message: 'do', all: true)
 
-        Git localGrgit = clone('local', remoteGrgit)
+        Git localGrgit = clone('local', remoteGit)
 
         expect:
         localGrgit.remote.list() == [
                 new Remote(
                         name: 'origin',
-                        url: remoteGrgit.repository.rootDir.canonicalFile.toPath().toUri(),
+                        url: remoteGit.repository.rootDir.canonicalFile.toPath().toUri(),
                         fetchRefSpecs: ['+refs/heads/*:refs/remotes/origin/*'])
         ]
     }

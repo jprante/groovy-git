@@ -10,14 +10,17 @@ import spock.lang.Ignore
 import spock.util.environment.RestoreSystemProperties
 
 class OpenOpSpec extends SimpleGitOpSpec {
+
     private static final String FILE_PATH = 'the-dir/test.txt'
+
     Commit commit
+
     File subdir
 
     def setup() {
         repoFile(FILE_PATH) << '1.1'
-        grgit.add(patterns: ['.'])
-        commit = grgit.commit(message: 'initial commit')
+        git.add(patterns: ['.'])
+        commit = git.commit(message: 'initial commit')
         subdir = repoDir('the-dir')
     }
 

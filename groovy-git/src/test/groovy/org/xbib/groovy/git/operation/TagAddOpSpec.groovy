@@ -14,13 +14,13 @@ class TagAddOpSpec extends SimpleGitOpSpec {
 
     def setup() {
         repoFile('1.txt') << '1'
-        commits << grgit.commit(message: 'do', all: true)
+        commits << git.commit(message: 'do', all: true)
 
         repoFile('1.txt') << '2'
-        commits << grgit.commit(message: 'do', all: true)
+        commits << git.commit(message: 'do', all: true)
 
         repoFile('1.txt') << '3'
-        commits << grgit.commit(message: 'do', all: true)
+        commits << git.commit(message: 'do', all: true)
     }
 
     def 'tag add creates annotated tag pointing to current HEAD'() {
@@ -29,9 +29,9 @@ class TagAddOpSpec extends SimpleGitOpSpec {
         ZoneId zone = ZoneId.ofOffset('GMT', ZoneId.systemDefault().getRules().getOffset(instant))
         ZonedDateTime tagTime = ZonedDateTime.ofInstant(instant, zone)
         when:
-        grgit.tag.add(name: 'test-tag')
+        git.tag.add(name: 'test-tag')
         then:
-        grgit.tag.list() == [new Tag(
+        git.tag.list() == [new Tag(
                 commits[2],
                 person,
                 'refs/tags/test-tag',
@@ -39,14 +39,14 @@ class TagAddOpSpec extends SimpleGitOpSpec {
                 '',
                 tagTime
         )]
-        grgit.resolve.toCommit('test-tag') == grgit.head()
+        git.resolve.toCommit('test-tag') == git.head()
     }
 
     def 'tag add with annotate false creates unannotated tag pointing to current HEAD'() {
         when:
-        grgit.tag.add(name: 'test-tag', annotate: false)
+        git.tag.add(name: 'test-tag', annotate: false)
         then:
-        grgit.tag.list() == [new Tag(
+        git.tag.list() == [new Tag(
                 commits[2],
                 null,
                 'refs/tags/test-tag',
@@ -54,7 +54,7 @@ class TagAddOpSpec extends SimpleGitOpSpec {
                 null,
                 null
         )]
-        grgit.resolve.toCommit('test-tag') == grgit.head()
+        git.resolve.toCommit('test-tag') == git.head()
     }
 
     def 'tag add with name and pointsTo creates tag pointing to pointsTo'() {
@@ -63,9 +63,9 @@ class TagAddOpSpec extends SimpleGitOpSpec {
         ZoneId zone = ZoneId.ofOffset('GMT', ZoneId.systemDefault().getRules().getOffset(instant))
         ZonedDateTime tagTime = ZonedDateTime.ofInstant(instant, zone)
         when:
-        grgit.tag.add(name: 'test-tag', pointsTo: commits[0].id)
+        git.tag.add(name: 'test-tag', pointsTo: commits[0].id)
         then:
-        grgit.tag.list() == [new Tag(
+        git.tag.list() == [new Tag(
                 commits[0],
                 person,
                 'refs/tags/test-tag',
@@ -73,24 +73,24 @@ class TagAddOpSpec extends SimpleGitOpSpec {
                 '',
                 tagTime
         )]
-        grgit.resolve.toCommit('test-tag') == commits[0]
+        git.resolve.toCommit('test-tag') == commits[0]
     }
 
     def 'tag add without force fails to overwrite existing tag'() {
         given:
-        grgit.tag.add(name: 'test-tag', pointsTo: commits[0].id)
+        git.tag.add(name: 'test-tag', pointsTo: commits[0].id)
         when:
-        grgit.tag.add(name: 'test-tag')
+        git.tag.add(name: 'test-tag')
         then:
         thrown(GitAPIException)
     }
 
     def 'tag add with force overwrites existing tag'() {
         given:
-        grgit.tag.add(name: 'test-tag', pointsTo: commits[0].id)
+        git.tag.add(name: 'test-tag', pointsTo: commits[0].id)
         when:
-        grgit.tag.add(name: 'test-tag', force: true)
+        git.tag.add(name: 'test-tag', force: true)
         then:
-        grgit.resolve.toCommit('test-tag') == grgit.head()
+        git.resolve.toCommit('test-tag') == git.head()
     }
 }

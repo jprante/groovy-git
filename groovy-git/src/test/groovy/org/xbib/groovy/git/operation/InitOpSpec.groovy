@@ -9,6 +9,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class InitOpSpec extends Specification {
+
     @Rule TemporaryFolder tempDir = new TemporaryFolder()
 
     File repoDir
