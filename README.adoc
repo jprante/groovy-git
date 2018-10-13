@@ -1,6 +1,6 @@
 # Groovy Git
 
-NOTE: This implementation is a fork of the Andrew J. Oberstar's https://github.com/ajoberstart/grgit[grgit] project with a reset of the
+NOTE: This implementation is a fork of the Andrew J. Oberstar's https://github.com/ajoberstar/grgit[grgit] project with a reset of the
 version numbering scheme.
 It was ensured to build and run under Java 11 and Gradle 5.
 Windows implementation details and documentation has been removed.
