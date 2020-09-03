@@ -1,85 +1,53 @@
 plugins {
     id 'java-gradle-plugin'
     id 'groovy'
-    id 'maven'
-    id 'signing'
-    id 'com.gradle.plugin-publish' version '0.9.10'
+    id 'com.gradle.plugin-publish' version '0.11.0'
 }
 
 group = 'org.xbib.gradle.plugin'
 
-apply plugin: 'maven'
+apply plugin: 'groovy'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.gradle.plugin-publish'
 
-configurations {
-    wagon
-}
 
 dependencies {
-    compileOnly gradleApi()
-    implementation project(':groovy-git')
-    testCompile gradleTestKit()
-    testImplementation project(':groovy-git')
-    testCompile "org.spockframework:spock-core:${project.property('spock.version')}"
-    wagon "org.apache.maven.wagon:wagon-ssh:${project.property('wagon.version')}"
+    api gradleApi()
+    api project(':groovy-git')
+    testImplementation gradleTestKit()
+    testImplementation "org.spockframework:spock-core:${project.property('spock.version')}"
 }
 
-pluginBundle {
-    website = 'https://github.com/jprante/groovy-git'
-    vcsUrl = 'https://github.com/jprante/groovy-git.git'
-    description = 'Git for Groovy'
+compileGroovy {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+compileTestGroovy {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+gradlePlugin {
     plugins {
-        publishPlugin {
+        rpmPlugin {
             id = 'org.xbib.gradle.plugin.git'
-            displayName = 'Git for Groovy'
-            tags = ['git', 'groovy']
+            implementationClass = 'org.xbib.gradle.plugin.git.GitPlugin'
         }
     }
 }
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier 'sources'
-}
-
-groovydoc {
-    docTitle = description
-}
-
-task groovydocJar(type: Jar, dependsOn: 'groovydoc') {
-    from groovydoc.destinationDir
-    classifier = 'javadoc'
-}
-
-artifacts {
-    archives sourceJar, groovydocJar
-}
-
-if (project.hasProperty('signing.keyId')) {
-    signing {
-        sign configurations.archives
-    }
-}
-
-ext {
-    user = 'jprante'
-    projectName = 'groovy-git'
-    projectDescription = 'Git for Groovy'
-    scmUrl = 'https://github.com/' + user + '/' + name
-    scmConnection = 'scm:git:git://github.com/' + user + '/' + name + '.git'
-    scmDeveloperConnection = 'scm:git:git://github.com/' + user + '/' + name + '.git'
-}
-
-task xbibUpload(type: Upload, dependsOn: build) {
-    group = 'publish'
-    configuration = configurations.archives
-    uploadDescriptor = true
-    repositories {
-        if (project.hasProperty('xbibUsername')) {
-            mavenDeployer {
-                configuration = configurations.wagon
-                repository(url: uri(project.property('xbibUrl'))) {
-                    authentication(userName: xbibUsername, privateKey: xbibPrivateKey)
-                }
+if (project.hasProperty('gradle.publish.key')) {
+    pluginBundle {
+        website = 'https://github.com/jprante/groovy-git'
+        vcsUrl = 'https://github.com/jprante/groovy-git.git'
+        plugins {
+            publishPlugin {
+                id = 'org.xbib.gradle.plugin.git'
+                version = project.version
+                description = rootProject.ext.description
+                displayName = rootProject.ext.description
+                tags = ['gradle', 'plugin', 'git']
             }
         }
     }
