@@ -1,6 +1,6 @@
 plugins {
-    id 'java-gradle-plugin'
     id 'groovy'
+    id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.11.0'
 }
 
@@ -9,7 +9,6 @@ group = 'org.xbib.gradle.plugin'
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'com.gradle.plugin-publish'
-
 
 dependencies {
     api gradleApi()
@@ -28,9 +27,13 @@ compileTestGroovy {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+validatePlugins {
+    failOnWarning = false
+}
+
 gradlePlugin {
     plugins {
-        rpmPlugin {
+        gitPlugin {
             id = 'org.xbib.gradle.plugin.git'
             implementationClass = 'org.xbib.gradle.plugin.git.GitPlugin'
         }
@@ -42,7 +45,7 @@ if (project.hasProperty('gradle.publish.key')) {
         website = 'https://github.com/jprante/groovy-git'
         vcsUrl = 'https://github.com/jprante/groovy-git.git'
         plugins {
-            publishPlugin {
+            gitPlugin {
                 id = 'org.xbib.gradle.plugin.git'
                 version = project.version
                 description = rootProject.ext.description
